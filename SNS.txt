@@ -1,0 +1,62 @@
+ACCESSPOLICY FOR SQS:
+
+{
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "sns.amazonaws.com"
+      },
+      "Action": "sqs:SendMessage",
+      "Resource": "SQS ARN",
+      "Condition": {
+        "ArnEquals": {
+          "aws:SourceArn": "SNS ARN"
+        }
+      }
+    }
+  ]
+}
+
+ACCESS POLICY FOR SNS:
+
+{
+  "Version": "2012-10-17",
+  "Id": "example-ID",
+  "Statement": [
+    {
+      "Sid": "Example SNS topic policy",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Action": [
+        "SNS:Publish"
+      ],
+      "Resource": "SNS topic ARN",
+      "Condition": {
+        "ArnLike": {
+          "aws:SourceArn": "S3 bucket ARN"
+        },
+        "StringEquals": {
+          "aws:SourceAccount": "Account ID"
+        }
+      }
+    }
+  ]
+}
+
+LAMBDA CODE:
+
+def lambda_handler(event, context):
+
+    for record in event['Records']:
+        print("Message received from SQS:")
+        print(record['body'])
+
+    return {
+        'statusCode': 200,
+        'body': 'Message processed successfully'
+    }
+
+
